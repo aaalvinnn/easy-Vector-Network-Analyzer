@@ -4,7 +4,7 @@
 #include "stdio.h"
 
 #define ADCLENGTH 500 // ADC转换数组大小
-#define NUMS 200			// 幅频/相频相应曲线点数
+#define NUMS 239			// 幅频/相频相应曲线点数
 
 extern uint16_t adc_buf[ADCLENGTH];
 

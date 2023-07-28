@@ -15,7 +15,7 @@ volatile uint8_t ads1256_flag = 0;
 /* 选择ADC通道 */
 // void changeAdcChannel(ADC_HandleTypeDef *hadc, uint32_t channel);
 
-/** @brif 开启ADC采集-片内ADC */
+/** @brief 开启ADC采集-片内ADC */
 void startAdc(uint16_t* _adc_buf, ADC_HandleTypeDef* hadc)
 {
   if(hadc == &hadc1)
@@ -40,7 +40,7 @@ void startAdc(uint16_t* _adc_buf, ADC_HandleTypeDef* hadc)
 	return;
 }
 
-/** @brif 开启ADC采样-ADS1256 采样率1kHz
+/** @brief 开启ADC采样-ADS1256 采样率1kHz
   *	@retval 无返回值，但改变全局变量adc1256_buf
 	*/
 void start_Adc_1256(void)
@@ -51,11 +51,11 @@ void start_Adc_1256(void)
 	ads1256_flag = 0;	// 清除转换完成标志位
 }
 
-/** @brif 自动扫频
+/** @brief 自动扫频
 	*/
 void start_FSK(void)
 {
-	AD9854_FSK_BPSK_HOLD_1;
+	AD9854_FSK_BPSK_HOLD_1;		// FSK = 1: 从低频向高频扫频; FSK = 0: 从高频向低频扫频
 	AD9854_InitRFSK(MANUAL);									//AUTO,自动扫频，无需外加控制脚控制；MANUAL,手动扫频，由AD9854_FSK_BPSK_HOLD引脚控制扫频
-	AD9854_SetRFSK(1000,600000,500,1048575);	//扫频下限1Khz，上限60Khz，步进100hz，扫频时间约2S，扫频时间计算参考函数注解
+	AD9854_SetRFSK(500000,600000,500,299999);	//扫频下限0.5Mhz，上限120Mhz，步进500Khz，频点间隔1ms （与ads1256采样率相对应），一共扫(120-0.5) / 0.5 = 239 个点
 }
