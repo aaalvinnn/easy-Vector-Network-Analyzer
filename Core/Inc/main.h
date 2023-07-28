@@ -67,12 +67,22 @@ void user_Adc_Dma_TxCpltCallback(DMA_HandleTypeDef *hdma);
 #define A5_GPIO_Port GPIOF
 #define A2_Pin GPIO_PIN_4
 #define A2_GPIO_Port GPIOF
+#define ADS1256_SCLK_Pin GPIO_PIN_3
+#define ADS1256_SCLK_GPIO_Port GPIOC
+#define ADS1256_MOSI_Pin GPIO_PIN_7
+#define ADS1256_MOSI_GPIO_Port GPIOA
+#define ADS1256_MISO_Pin GPIO_PIN_4
+#define ADS1256_MISO_GPIO_Port GPIOC
+#define ADS1256_DRDY_Pin GPIO_PIN_5
+#define ADS1256_DRDY_GPIO_Port GPIOC
+#define ADS1256_CS_Pin GPIO_PIN_2
+#define ADS1256_CS_GPIO_Port GPIOB
 #define RST_Pin GPIO_PIN_12
 #define RST_GPIO_Port GPIOF
 #define FSK_Pin GPIO_PIN_13
 #define FSK_GPIO_Port GPIOF
-#define A1_Pin GPIO_PIN_7
-#define A1_GPIO_Port GPIOE
+#define A0_Pin GPIO_PIN_7
+#define A0_GPIO_Port GPIOE
 #define WD_Pin GPIO_PIN_8
 #define WD_GPIO_Port GPIOE
 #define UCLK_Pin GPIO_PIN_9
@@ -97,8 +107,8 @@ void user_Adc_Dma_TxCpltCallback(DMA_HandleTypeDef *hdma);
 #define A3_GPIO_Port GPIOD
 #define D1_Pin GPIO_PIN_14
 #define D1_GPIO_Port GPIOD
-#define A0_Pin GPIO_PIN_15
-#define A0_GPIO_Port GPIOD
+#define A1_Pin GPIO_PIN_15
+#define A1_GPIO_Port GPIOD
 
 /* USER CODE BEGIN Private defines */
 

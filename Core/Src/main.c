@@ -27,6 +27,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "app.h"
+#include "ADS1256.h"
 #include "stdio.h"
 /* USER CODE END Includes */
 
@@ -48,7 +49,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+extern uint32_t adc1256_buf[NUMS];
+extern volatile uint8_t ads1256_flag;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -97,17 +99,16 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-  // startAdc(adc_buf, &hadc1);
-  // for(int i=0;i<ADCLENGTH;i++)  printf("%d\r\n",adc_buf[i]);
+  // ADS1256初始化
+	ADS1256_Init(ADS1256_GAIN_1, ADS1256_DRATE_30000SPS);
+	start_FSK();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		startAdc(adc_buf, &hadc1);
-		for(int i=0;i<ADCLENGTH;i++)  printf("%d\r\n",adc_buf[i]);
-		HAL_Delay(1000);
+	
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -137,8 +138,8 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 4;
-  RCC_OscInitStruct.PLL.PLLN = 168;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLN = 72;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV6;
   RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -150,11 +151,11 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV4;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
   {
     Error_Handler();
   }
@@ -163,7 +164,7 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-	if(hadc == &hadc1)								//ADC1转换完成，置标志位为1
+	if(hadc == &hadc1)								//ADC1转锟斤拷锟斤拷桑锟斤拷帽锟街疚晃?1
 	{
 		adc1_dma_flag = 1;
 		return;
@@ -173,6 +174,24 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 		adc2_dma_flag = 1;
 		return;
 	}
+}
+/** @brif 定时器中断回调函数
+	*/
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if(htim == &htim3)
+	{
+		static int i = 0;
+		adc1256_buf[i] = ADS1256ReadData(ADS1256_MUXP_AIN0, ADS1256_MUXN_AINCOM);
+		i++;
+		if(i==(NUMS))
+		{
+			i=0;
+			HAL_TIM_Base_Stop_IT(&htim3);	// 开启ADS1256采样的方式就是打开定时器3
+			ads1256_flag = 1;
+		}
+	}
+	return ;
 }
 /* USER CODE END 4 */
 
