@@ -51,6 +51,7 @@
 /* USER CODE BEGIN PV */
 extern uint32_t adc1256_buf[NUMS];
 extern volatile uint8_t ads1256_flag;
+uint8_t rx_flag;		// receive from UART MENU
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -108,7 +109,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	
+    HAL_UART_Receive_IT(&huart1, &rx_flag, 1);	//receive from UART HMI
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -162,6 +163,11 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+/**
+ * @brief ADC DMA 转换传输完成中断回调函数
+ * 
+ * @param hadc 
+ */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
 	if(hadc == &hadc1)								//ADC1转锟斤拷锟斤拷桑锟斤拷帽锟街疚晃?1
@@ -175,8 +181,10 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 		return;
 	}
 }
-/** @brif 定时器中断回调函数
-	*/
+/** @brief 定时器中断回调函数
+ * 
+ * @param htim
+ */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if(htim == &htim3)
@@ -192,6 +200,35 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		}
 	}
 	return ;
+}
+
+/**
+ * @brief 串口接收中断回调函数,用于接收串口屏发送的指令
+ * 
+ * @param huart 
+ */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if(huart->Instance == USART1)
+	{
+		if (rx_flag == 0x01)
+		{
+
+		}
+		else if (rx_flag == 0x02)
+		{
+
+		}
+		else if (rx_flag == 0x03)
+		{
+
+		}
+		else if (rx_flag == 0x04)
+		{
+
+		}
+    return ;
+	}
 }
 /* USER CODE END 4 */
 
