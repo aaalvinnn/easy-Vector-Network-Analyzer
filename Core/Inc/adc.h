@@ -37,8 +37,8 @@ extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
 
 /* USER CODE BEGIN Private defines */
-extern uint8_t adc1_dma_flag;
-extern uint8_t adc2_dma_flag;
+extern volatile uint8_t adc1_dma_flag;
+extern volatile uint8_t adc2_dma_flag;
 /* USER CODE END Private defines */
 
 void MX_ADC1_Init(void);
