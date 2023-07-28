@@ -49,7 +49,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-extern uint32_t adc1256_buf[NUMS];
+extern ADC1256 adc1256;
 extern volatile uint8_t ads1256_flag;
 uint8_t rx_flag;		// receive from UART MENU
 /* USER CODE END PV */
@@ -190,13 +190,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	if(htim == &htim3)
 	{
 		static int i = 0;
-		adc1256_buf[i] = ADS1256ReadData(ADS1256_MUXP_AIN0, ADS1256_MUXN_AINCOM);
+    // 分时复用ads1256的同一个通道
+		if(adc1256.channel == COS)  adc1256.adc1256_buf_cos[i] = ADS1256ReadData(ADS1256_MUXP_AIN0, ADS1256_MUXN_AINCOM);
+    else if(adc1256.channel == SIN)  adc1256.adc1256_buf_sin[i] = ADS1256ReadData(ADS1256_MUXP_AIN0, ADS1256_MUXN_AINCOM);
 		i++;
 		if(i==(NUMS))
 		{
 			i=0;
 			HAL_TIM_Base_Stop_IT(&htim3);	// 开启ADS1256采样的方式就是打开定时器3
-			ads1256_flag = 1;
+			adc1256.flag = 1;
 		}
 	}
 	return ;
@@ -211,10 +213,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart->Instance == USART1)
 	{
+    // 测量S11参数
 		if (rx_flag == 0x01)
 		{
 
 		}
+    // 测量S21参数
 		else if (rx_flag == 0x02)
 		{
 
