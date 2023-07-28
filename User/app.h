@@ -2,6 +2,7 @@
 #define	_USER_H
 #include "main.h"
 #include "stdio.h"
+#include "math.h"
 
 #define ADCLENGTH 500 // ADC转换数组大小
 #define NUMS 239			// 幅频/相频相应曲线点数
@@ -27,10 +28,19 @@ typedef struct Adc1256{
     volatile uint8_t flag;      // 采集状态标志
 }ADC1256;
 
+// 正交分解算法计算amp和phase的结果
+typedef struct Result{
+    float amp[NUMS];
+    float phase[NUMS];
+}RESULT;
+
 extern uint16_t adc_buf[ADCLENGTH];
 
 void startAdc(uint16_t* _adc_buf, ADC_HandleTypeDef* hadc);
 void start_Adc_1256(void);
 void start_FSK(void);
+void measure_S21(void);
+void measure_S11(void);
+void gui(void);
 
 #endif
