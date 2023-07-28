@@ -61,13 +61,20 @@ void start_FSK(void)
 	AD9854_SetRFSK(500000,600000,500,299999);	//扫频下限0.5Mhz，上限120Mhz，步进500Khz，频点间隔1ms （与ads1256采样率相对应），一共扫(120-0.5) / 0.5 = 239 个点
 }
 
+// void calculate_Amp_Phase()
+
 /**
- * @brief 测量S21参数
+ * @brief 测量S21参数，正交扫频算法，只采经过乘法器、低通滤波器后的直流量
  * @param void
  * @retval void
  */
 void measure_S21(void)
 {
+	// 1.待采信号与coswt相乘
+	SWITCH_RFC1_TO_RFC2;	// 切换开关, 乘法器输入为cos
+	start_FSK();			// 开启AD9854自动扫频模式
+	start_Adc_1256();	// 打开ADS1256采样
+
 
 }
 

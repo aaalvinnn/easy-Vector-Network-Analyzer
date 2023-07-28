@@ -67,6 +67,10 @@ void user_Adc_Dma_TxCpltCallback(DMA_HandleTypeDef *hdma);
 #define A5_GPIO_Port GPIOF
 #define A2_Pin GPIO_PIN_4
 #define A2_GPIO_Port GPIOF
+#define switch_B_Pin GPIO_PIN_0
+#define switch_B_GPIO_Port GPIOC
+#define switch_A_Pin GPIO_PIN_1
+#define switch_A_GPIO_Port GPIOC
 #define ADS1256_SCLK_Pin GPIO_PIN_3
 #define ADS1256_SCLK_GPIO_Port GPIOC
 #define ADS1256_MOSI_Pin GPIO_PIN_7

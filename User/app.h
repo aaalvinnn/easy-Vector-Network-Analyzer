@@ -6,6 +6,13 @@
 #define ADCLENGTH 500 // ADC转换数组大小
 #define NUMS 239			// 幅频/相频相应曲线点数
 
+// 单刀双掷射频开关1
+#define SWITCH_RFC1_TO_RFC2 HAL_GPIO_WritePin(switch_A_GPIO_Port, switch_A_Pin, 0); \
+                            HAL_GPIO_WritePin(switch_B_GPIO_Port, switch_B_Pin, 1)
+// 单刀双掷射频开关2
+#define SWITCH_RFC1_TO_RF1  HAL_GPIO_WritePin(switch_A_GPIO_Port, switch_A_Pin, 1); \
+                            HAL_GPIO_WritePin(switch_B_GPIO_Port, switch_B_Pin, 0)
+                            
 // 正交分解时的乘数
 enum Channel{
     COS,
