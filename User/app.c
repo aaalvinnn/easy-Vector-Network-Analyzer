@@ -1,6 +1,17 @@
+/**
+ * @file app.c
+ * @author zsw (aaalvinnn@foxmail.com)
+ * @brief 功能函数相关接口
+ * @version 0.1
+ * @date 2023-07-30
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include "app.h"
 #include "adc.h"
 #include "AD9854.h"
+#include "math.h"
 
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
@@ -167,19 +178,37 @@ void measure_S11(void)
 	return ;
 }
 
-/*---------------------- GUI ---------------------------*/
 /**
- * @brief 打印幅频、相频响应曲线
+ * @brief 计算中心频点
  * 
+ * @param _result 正交分解的计算结果
+ * @retval 中心频点下标, 同时修改了全局变量
  */
-void gui(void)
+int calculate_CenterFrequency(RESULT _result)
 {
+	// 幅频曲线最高值点即为中心频点
+	double max=_result.amp[0];
 	for(int i=0;i<NUMS;i++)
 	{
-		// 幅频曲线
-		printf("add s0.id,0,%d\xff\xff\xff",(int)math_result.amp[i]);
-		// 相频曲线
-		printf("add s1.id,0,%d\xff\xff\xff",(int)math_result.phase[i]);
+		if(_result.amp[i] >= max){
+			max = _result.amp[i];
+			_result.amp_max_index = i;
+		}
 	}
-	return ;
+
+	// 相频曲线与0差最小的点即为中心频点
+	double diff_min = fabs(_result.phase[0] - 0.00);
+	for(int i=0;i<NUMS;i++)
+	{
+		if(fabs(_result.phase[i] - 0.00) <= diff_min){
+			diff_min = _fabs(_result.phase[i] - 0.00);
+			_result.phase_0_index = i;
+		}
+	}
+
+	if (_result.amp_max_index == _result.phase_0_index)	printf("same amp_center vs phase_center\r\n");
+	else printf("differnt amp_center vs phase_center\r\n amp_center:%d\r\n phase_center:%d\r\n",_result.amp_max_index,_result.phase_0_index);
+
+	_result.center_fre_index = _result.amp_max_index;
+	return _result.center_fre_index;
 }

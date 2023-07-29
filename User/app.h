@@ -1,9 +1,18 @@
-#ifndef _USER_H
-#define	_USER_H
-#include "main.h"
-#include "stdio.h"
-#include "math.h"
+/**
+ * @file app.h
+ * @author zsw (aaalvinnn@foxmail.com)
+ * @brief app头文件，包含结构体定义，全局变量的声明，函数接口的声明
+ * @version 0.1
+ * @date 2023-07-30
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+#ifndef _APP_H
+#define	_APP_H
 
+#include "stdio.h"
+#include "main.h"
 #define ADCLENGTH 500 // ADC转换数组大小
 #define NUMS 239			// 幅频/相频相应曲线点数
 
@@ -47,23 +56,31 @@ typedef struct Adc1256{
 
 // 正交分解算法计算amp和phase的结果
 typedef struct Result{
-    float amp[NUMS];
-    float phase[NUMS];
+    double amp[NUMS];
+    double phase[NUMS];
+    // 理论上amp_max_index == phase_0_index == center_fre_index
+    int amp_max_index;  // 幅频响应极大值下标
+    int phase_0_index;  // 相频响应零点下标
+    int center_fre_index;   // 中心频率点下标
+    int center_fre;     // 中心频率
 }RESULT;
 
 // 自校正系数
 typedef struct SelfCalibration{
-    float calibration_cos[NUMS];    // 乘法器经过cos的校正系数
-    float calibration_sin[NUMS];    // 乘法器经过sin的校正系数
+    double calibration_cos[NUMS];    // 乘法器经过cos的校正系数
+    double calibration_sin[NUMS];    // 乘法器经过sin的校正系数
 }SELFCALIBRATION;
 
 extern uint16_t adc_buf[ADCLENGTH];
+extern ADC1256 adc1256;	// 采集原始数据
+extern RESULT math_result;	// 正交分解算法计算的结果
+extern SELFCALIBRATION self_calibration;	// 自校正系数
 
 void startAdc(uint16_t* _adc_buf, ADC_HandleTypeDef* hadc);
 void start_Adc_1256(void);
 void start_FSK(void);
 void measure_S21(void);
 void measure_S11(void);
-void gui(void);
+int calculate_CenterFrequency(RESULT _result);
 
 #endif
