@@ -28,6 +28,7 @@
 /* USER CODE BEGIN Includes */
 #include "app.h"
 #include "ADS1256.h"
+#include "AD9854.h"
 #include "stdio.h"
 /* USER CODE END Includes */
 
@@ -51,6 +52,7 @@
 /* USER CODE BEGIN PV */
 extern ADC1256 adc1256;
 extern volatile uint8_t ads1256_flag;
+extern SELFCALIBRATION self_calibration;	// 自校正系数
 uint8_t rx_flag;		// receive from UART MENU
 /* USER CODE END PV */
 
@@ -102,7 +104,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
   // ADS1256初始化
 	ADS1256_Init(ADS1256_GAIN_1, ADS1256_DRATE_30000SPS);
-	start_FSK();
+	AD9854_InitSingle();
+	AD9854_SetSine(1000000,4095);
+	// start_FSK();
   /* USER CODE END 2 */
 
   /* Infinite loop */
