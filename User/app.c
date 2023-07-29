@@ -201,7 +201,7 @@ int calculate_CenterFrequency(RESULT _result)
 	for(int i=0;i<NUMS;i++)
 	{
 		if(fabs(_result.phase[i] - 0.00) <= diff_min){
-			diff_min = _fabs(_result.phase[i] - 0.00);
+			diff_min = fabs(_result.phase[i] - 0.00);
 			_result.phase_0_index = i;
 		}
 	}
