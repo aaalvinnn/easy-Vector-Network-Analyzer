@@ -15,8 +15,8 @@
 #include "main.h"
 #define PI 3.1415926535    // 圆周率
 #define ADCLENGTH 500 // ADC转换数组大小
-#define NUMS 400			// 幅频/相频相应曲线点数
-#define FRESTEP 300000        // 扫频步进频率
+#define NUMS 450			// 幅频/相频相应曲线点数
+#define FRESTEP 266667        // 扫频步进频率
 
 // 单刀双掷射频开关1--cos | sin
 #define SWITCH1_COS             HAL_GPIO_WritePin(switch1_A_GPIO_Port, switch1_A_Pin, 0); \

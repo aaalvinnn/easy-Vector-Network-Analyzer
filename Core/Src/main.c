@@ -101,6 +101,8 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
+	AD9854_InitSingle();	      	  					//AD9854点频模式初始化
+	AD9854_SetSine(100000000,4095);	 
   // 串口屏初始化
 	guiInit();
   // 采集序列频率数组初始化
@@ -273,6 +275,18 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
       case 0x09:
         if (!cursor.status) break;    // 光标关闭
         cursor.step = 10;
+        moveCursor_Left();
+        break;
+      // 光标向右移动,步距为50
+      case 0x10:
+        if (!cursor.status) break;    // 光标关闭
+        cursor.step = 50;
+        moveCursor_Right();
+        break;
+      // 光标向左移动,步距为50
+      case 0x11:
+        if (!cursor.status) break;    // 光标关闭
+        cursor.step = 50;
         moveCursor_Left();
         break;
       default:

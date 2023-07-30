@@ -17,8 +17,9 @@
 #define REFRESH_CURSOR printf("ref s0\xff\xff\xff");	// 去除原有的光标
 #define REFRESH_WINDOW printf("cle s0.id,0\xff\xff\xff")
 // 曲线窗口的属性
-#define CURVE_WINDOW_X  22
-#define CURVE_WINDOW_Y  265
+#define CURVE_WINDOW_X  22  // 22 是曲线控件左上角点的横坐标
+#define CURVE_WINDOW_Y  (270 - 5)   // 5是曲线控件左上角点的纵坐标,270是曲线空间的高度
+
 
 // 曲线控件显示模式
 enum Curvedmode{

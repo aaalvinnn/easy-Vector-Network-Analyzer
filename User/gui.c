@@ -146,8 +146,11 @@ void startCursorMode(void)
  */
 void moveCursor_Right(void)
 {
+    // 边界值处理
+    if ((cursor.x + cursor.step) <= 1 || (cursor.x + cursor.step) >= ( NUMS - 1))  return ;
+    // 刷新光标
     REFRESH_CURSOR;
-    HAL_Delay(50);
+    HAL_Delay(50);  // 等待刷新
     cursor.x += cursor.step;
     switch (curved.mode)
     {
@@ -171,8 +174,11 @@ void moveCursor_Right(void)
  */
 void moveCursor_Left(void)
 {
+    // 边界值处理
+    if ((cursor.x - cursor.step) <= 1 || (cursor.x - cursor.step) >= (NUMS - 1))  return ;
+    // 刷新光标
     REFRESH_CURSOR;
-    HAL_Delay(50);
+    HAL_Delay(50);  // 等待刷新
     cursor.x -= cursor.step;
     switch (curved.mode)
     {
