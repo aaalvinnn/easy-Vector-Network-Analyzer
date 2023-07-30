@@ -92,10 +92,12 @@ void calculate_Amp_Phase(ADC1256 raw, SELFCALIBRATION calibration)
 	{
 		// 相频响应
 		math_result.phase[i] = atan2(raw.adc1256_buf_sin[i] / calibration.calibration_sin[i],raw.adc1256_buf_cos[i] / calibration.calibration_cos[i]);
+		math_result.phase[i] = math_result.phase[i] / PI * 180.00;	// 切换为角度单位
 		// 幅频响应
 		math_result.amp[i] = 2.0 * sqrt((raw.adc1256_buf_cos[i] / calibration.calibration_cos[i]) * (raw.adc1256_buf_cos[i] / calibration.calibration_cos[i])
 										 + 
 										 (raw.adc1256_buf_sin[i] / calibration.calibration_sin[i]) * (raw.adc1256_buf_sin[i] / calibration.calibration_sin[i]));
+		math_result.amp[i] = 20 * log10(math_result.amp[i]);	// 切换为对数单位
 	}
 	return ;
 }
