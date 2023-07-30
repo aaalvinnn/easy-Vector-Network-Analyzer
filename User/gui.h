@@ -32,6 +32,12 @@ typedef struct Curved{
     enum Curvedmode mode;   // 初始默认幅频曲线
 }CURVED;
 
+// 曲线控件的光标对象
+typedef struct Cursor{
+    int x;
+    int y;
+}CURSOR;
+
 /*-----------DECLARTION-------------*/
 extern CURVED curved;
 
@@ -39,5 +45,7 @@ void guiInit(void);
 void printCurve(void);
 void changeCurveMode(void);
 void startCursorMode(void);
+void moveCursor_Right(void);
+void moveCursor_Left(void);
 
 #endif

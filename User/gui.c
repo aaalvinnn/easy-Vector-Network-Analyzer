@@ -11,6 +11,7 @@
 #include "gui.h"
 
 CURVED curved;
+CURSOR cursor;
 /*---------------------- GUI ---------------------------*/
 /**
  * @brief 串口屏初始化
@@ -102,12 +103,12 @@ void printCursorData(int x, int y, uint8_t n)
 {
     if(curved.mode == AMP)
     {
-        printf("t2.txt=\"%d:  %.3fMHz  %.2fdB\"\xff\xff\xff",n,math_result.phase[x],math_result.amp[x]);
+        printf("t2.txt=\"%d:  %.1fMHz  %.2fdB\"\xff\xff\xff",n,adc1256.frequency_array[x],math_result.amp[x]);
     }
 
     else
     {
-        printf("t2.txt=\"%d:  %.3fMHz  %.2f°\"\xff\xff\xff",n,math_result.phase[x],math_result.phase[x]);
+        printf("t2.txt=\"%d:  %.1fMHz  %.2f°\"\xff\xff\xff",n,adc1256.frequency_array[x],math_result.phase[x]);
     }
     return ;
 }
@@ -120,22 +121,67 @@ void printCursorData(int x, int y, uint8_t n)
 void startCursorMode(void)
 {
     // 光标的初始位置
-    int x = calculate_CenterFrequency();
-    int y;
+    cursor.x = calculate_CenterFrequency();
     switch (curved.mode)
     {
         case AMP:
-            y = curved.array[x];
-						// printf("y=%d\r\n",y);
+            cursor.y = curved.array[cursor.x];
+			// printf("y=%d\r\n",y);
             break;
         case PHASE:
-            y = curved.array[x];
+            cursor.y = curved.array[cursor.x];
             break;
         default:
             break;
     }
-    drawCursor(x,y);
+    drawCursor(cursor.x,cursor.y);
     // 打印当前光标位置处的数据
-    printCursorData(x,y,1);
+    printCursorData(cursor.x,cursor.y,1);
+    return ;
+}
+
+/**
+ * @brief 向右移动光标，并打印当前数据属性
+ * 
+ */
+void moveCursor_Right(void)
+{
+    REFRESH_CURSOR;
+    cursor.x++;
+    switch (curved.mode)
+    {
+        case AMP:
+            cursor.y = curved.array[cursor.x];
+            break;
+        case PHASE:
+            cursor.y = curved.array[cursor.x];
+            break;
+        default:
+            break;
+    }
+    printCursorData(cursor.x,cursor.y,1);
+    return ;
+}
+
+/**
+ * @brief 向左移动光标，并打印当前数据属性
+ * 
+ */
+void moveCursor_Left(void)
+{
+    REFRESH_CURSOR;
+    cursor.x--;
+    switch (curved.mode)
+    {
+        case AMP:
+            cursor.y = curved.array[cursor.x];
+            break;
+        case PHASE:
+            cursor.y = curved.array[cursor.x];
+            break;
+        default:
+            break;
+    }
+    printCursorData(cursor.x,cursor.y,1);
     return ;
 }

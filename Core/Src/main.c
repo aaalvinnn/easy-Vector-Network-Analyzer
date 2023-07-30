@@ -101,11 +101,10 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
+  // 串口屏初始化
 	guiInit();
-  // ADS1256初始化
-	// ADS1256_Init(ADS1256_GAIN_1, ADS1256_DRATE_30000SPS);
-	// AD9854_InitSingle();
-	// AD9854_SetSine(100000000,4095);
+  // 采集序列频率数组初始化
+  for(int i=0;i<NUMS;i++) adc1256.frequency_array[i] = 0.5 + i * FRESTEP;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -247,6 +246,16 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
       // REFRESH_CURSOR;
       startCursorMode();
 		}
+    // 光标向右移动
+    else if (rx_flag == 0x06)
+    {
+      moveCursor_Right();
+    }
+    // 光标向左移动
+    else if (rx_flag == 0x07)
+    {
+      moveCursor_Left();
+    }
     return ;
 	}
 }
