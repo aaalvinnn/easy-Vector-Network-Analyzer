@@ -30,11 +30,20 @@ void guiInit(void)
  */
 void changeArraySize(double _array[NUMS])
 {
-    // 查找序列中的极大值
-    double max = _array[0];
-    for(int i=0;i<NUMS;i++) if(_array[i]>=max)    max = _array[i];
-    // double -> uint8_t
-    for(int i=0;i<NUMS;i++) curved.array[i] = (int)(_array[i] / max * 255.00);
+    // 更新中心频率点
+    calculate_CenterFrequency();
+    if(curved.mode == AMP)
+    {
+        // 查找序列中的极大值
+        double max = _array[math_result.amp_max_index];
+        // double -> uint8_t
+        for(int i=0;i<NUMS;i++) curved.array[i] = (int)(_array[i] / max * 255.00);
+    }
+    else
+    {
+
+        for(int i=0;i<NUMS;i++) curved.array[i] = (int) ((_array[i] + 90.0) / 180.0 * 255.0);
+    }
     return ;
 }
 
@@ -58,6 +67,8 @@ void printCurve(void)
     switch (curved.mode)
     {
         case AMP:
+            // 纵坐标轴
+            printf("t1.txt=\"0\r\n\r\n-10\r\n\r\n-20\r\n\r\n-30\r\n\r\n-40\r\n\r\n-50\r\n\r\n-60\r\n\r\n-70\r\n\r\n-80\r\n\r\n-90\r\n\r\n-100\r\n\r\n\"\xff\xff\xff");
             // 幅频曲线
             changeArraySize(math_result.amp);   // 转换数据格式，储存于curved.array中
             for(int i=0;i<NUMS;i++)
@@ -66,6 +77,8 @@ void printCurve(void)
             }
             break;
         case PHASE:
+            // 纵坐标轴
+            printf("t1.txt=\"90\r\n\r\n75\r\n\r\n60\r\n\r\n45\r\n\r\n30\r\n\r\n15\r\n\r\n0\r\n\r\n-15\r\n\r\n-30\r\n\r\n-45\r\n\r\n-60\r\n\r\n-75\r\n\r\n-90\"\xff\xff\xff");
             // 相频曲线
             changeArraySize(math_result.phase); // 转换数据格式，储存于curved.array中
             for(int i=0;i<NUMS;i++)
