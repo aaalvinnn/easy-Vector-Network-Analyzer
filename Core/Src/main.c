@@ -217,60 +217,60 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart->Instance == USART1)
 	{
-    // 测量S11参数
-		if (rx_flag == 0x01)
-		{
-      REFRESH_CURSOR;
-      REFRESH_WINDOW;
-      measure_S21();
-      printCurve();
-		}
-    // 测量S21参数
-		else if (rx_flag == 0x02)
-		{
-      REFRESH_CURSOR;
-      REFRESH_WINDOW;
-      measure_S11();
-      printCurve();
-		}
-    // 幅/相频曲线显示切换
-		else if (rx_flag == 0x03)
-		{
-      REFRESH_CURSOR;
-      REFRESH_WINDOW;
-      changeCurveMode();
-      printCurve();
-		}
-    // 光标功能
-		else if (rx_flag == 0x05)
-		{
-      REFRESH_CURSOR;
-			HAL_Delay(50);
-      startCursorMode();
-		}
-    // 光标向右移动,步距为1
-    else if (rx_flag == 0x06)
+    switch (rx_flag)
     {
-			cursor.step = 1;
-      moveCursor_Right();
-    }
-    // 光标向左移动,步距为1
-    else if (rx_flag == 0x07)
-    {
-			cursor.step = 1;
-      moveCursor_Left();
-    }
-		// 光标向右移动,步距为10
-    else if (rx_flag == 0x08)
-    {
-			cursor.step = 10;
-      moveCursor_Right();
-    }
-		// 光标向左移动,步距为10
-    else if (rx_flag == 0x09)
-    {
-			cursor.step = 10;
-      moveCursor_Left();
+      // 测量S11参数
+      case 0x01:
+        REFRESH_CURSOR;
+        REFRESH_WINDOW;
+        measure_S21();
+        printCurve();
+        break;
+      // 测量S21参数
+      case 0x02:
+        REFRESH_CURSOR;
+        REFRESH_WINDOW;
+        measure_S11();
+        printCurve();
+        break;
+      // 幅/相频曲线显示切换
+      case 0x03:
+        REFRESH_CURSOR;
+        REFRESH_WINDOW;
+        changeCurveMode();
+        printCurve();
+        break;
+      // error, 串口屏切换page时会输出带0x04的序列，故舍弃这个标志
+      case 0x04:
+        break;
+      // 光标功能
+      case 0x05:
+        REFRESH_CURSOR;
+        HAL_Delay(50);
+        startCursorMode();
+        break;
+      // 光标向右移动,步距为1
+      case 0x06:
+        cursor.step = 1;
+        moveCursor_Right();
+        break;
+      // 光标向左移动,步距为1
+      case 0x07:
+        cursor.step = 1;
+        moveCursor_Left();
+        break;
+      // 光标向右移动,步距为10
+      case 0x08:
+        cursor.step = 10;
+        moveCursor_Right();
+        break;
+      // 光标向左移动,步距为10
+      case 0x09:
+        cursor.step = 10;
+        moveCursor_Left();
+        break;
+      default:
+        break;
     }
 	}
 	HAL_UART_Receive_IT(&huart1, &rx_flag, 1);	//receive from UART HMI
