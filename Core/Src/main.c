@@ -101,15 +101,16 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
+	guiInit();
   // ADS1256初始化
-	ADS1256_Init(ADS1256_GAIN_1, ADS1256_DRATE_30000SPS);
-	AD9854_InitSingle();
-	AD9854_SetSine(100000000,4095);
-	// start_FSK();
+	// ADS1256_Init(ADS1256_GAIN_1, ADS1256_DRATE_30000SPS);
+	// AD9854_InitSingle();
+	// AD9854_SetSine(100000000,4095);
   /* USER CODE END 2 */
-  
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  self_Calibration_Test();  // 测试，将自校正数组全填充为1
   while (1)
   {
     HAL_UART_Receive_IT(&huart1, &rx_flag, 1);	//receive from UART HMI
@@ -219,23 +220,32 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     // 测量S11参数
 		if (rx_flag == 0x01)
 		{
+      REFRESH_CURSOR;
+      REFRESH_WINDOW;
       measure_S21();
       printCurve();
 		}
     // 测量S21参数
 		else if (rx_flag == 0x02)
 		{
+      REFRESH_CURSOR;
+      REFRESH_WINDOW;
       measure_S11();
       printCurve();
 		}
-    // 光标功能
+    // 幅/相频曲线显示切换
 		else if (rx_flag == 0x03)
 		{
-
+      REFRESH_CURSOR;
+      REFRESH_WINDOW;
+      changeCurveMode();
+      printCurve();
 		}
-		else if (rx_flag == 0x04)
+    // 光标功能
+		else if (rx_flag == 0x05)
 		{
-
+      // REFRESH_CURSOR;
+      startCursorMode();
 		}
     return ;
 	}

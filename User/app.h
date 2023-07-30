@@ -15,6 +15,7 @@
 #include "main.h"
 #define ADCLENGTH 500 // ADC转换数组大小
 #define NUMS 239			// 幅频/相频相应曲线点数
+#define PI 3.1415926535    // 圆周率
 
 // 单刀双掷射频开关1--cos | sin
 #define SWITCH1_COS             HAL_GPIO_WritePin(switch1_A_GPIO_Port, switch1_A_Pin, 0); \
@@ -81,6 +82,8 @@ void start_Adc_1256(void);
 void start_FSK(void);
 void measure_S21(void);
 void measure_S11(void);
-int calculate_CenterFrequency(RESULT _result);
+int calculate_CenterFrequency();
+void self_Calibration(void);
+void self_Calibration_Test(void);
 
 #endif

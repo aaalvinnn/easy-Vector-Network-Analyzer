@@ -12,6 +12,7 @@
 #include "adc.h"
 #include "AD9854.h"
 #include "math.h"
+#include "gui.h"
 
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
@@ -86,17 +87,17 @@ void start_FSK(void)
  * @param raw 采集到的原始数据
  * @param calibration 自校正系数
  */
-void calculate_Amp_Phase(ADC1256 raw, SELFCALIBRATION calibration)
+void calculate_Amp_Phase()
 {
 	for(int i=0;i<NUMS;i++)
 	{
 		// 相频响应
-		math_result.phase[i] = atan2(raw.adc1256_buf_sin[i] / calibration.calibration_sin[i],raw.adc1256_buf_cos[i] / calibration.calibration_cos[i]);
+		math_result.phase[i] = atan2(adc1256.adc1256_buf_sin[i] / self_calibration.calibration_sin[i],adc1256.adc1256_buf_cos[i] / self_calibration.calibration_cos[i]);
 		math_result.phase[i] = math_result.phase[i] / PI * 180.00;	// 切换为角度单位
 		// 幅频响应
-		math_result.amp[i] = 2.0 * sqrt((raw.adc1256_buf_cos[i] / calibration.calibration_cos[i]) * (raw.adc1256_buf_cos[i] / calibration.calibration_cos[i])
+		math_result.amp[i] = 2.0 * sqrt((adc1256.adc1256_buf_cos[i] / self_calibration.calibration_cos[i]) * (adc1256.adc1256_buf_cos[i] / self_calibration.calibration_cos[i])
 										 + 
-										 (raw.adc1256_buf_sin[i] / calibration.calibration_sin[i]) * (raw.adc1256_buf_sin[i] / calibration.calibration_sin[i]));
+										 (adc1256.adc1256_buf_sin[i] / self_calibration.calibration_sin[i]) * (adc1256.adc1256_buf_sin[i] / self_calibration.calibration_sin[i]));
 		math_result.amp[i] = 20 * log10(math_result.amp[i]);	// 切换为对数单位
 	}
 	return ;
@@ -115,15 +116,29 @@ void self_Calibration(void)
 	adc1256.channel = COS;
 	start_FSK();			// 开启AD9854自动扫频模式
 	start_Adc_1256();	// 打开ADS1256采样
-	for(int i=0;i<NUMS;i++)	self_calibration.calibration_cos[i] = adc1256.adc1256_buf_cos[i];	// 将采集结果储存到自校正系数数组中
+	// for(int i=0;i<NUMS;i++)	self_calibration.calibration_cos[i] = adc1256.adc1256_buf_cos[i];	// 将采集结果储存到自校正系数数组中
 	// 3.采集sin校正系数
 	SWITCH1_SIN;	// 切换开关, 乘法器输入为sin
 	adc1256.channel = SIN;
 	start_FSK();			// 开启AD9854自动扫频模式
 	start_Adc_1256();	// 打开ADS1256采样
-	for(int i=0;i<NUMS;i++)	self_calibration.calibration_sin[i] = adc1256.adc1256_buf_sin[i];	// 将采集结果储存到自校正系数数组中
+	// for(int i=0;i<NUMS;i++)	self_calibration.calibration_sin[i] = adc1256.adc1256_buf_sin[i];	// 将采集结果储存到自校正系数数组中
 	// 4.射频开关切换回测量RLC待测网络
 	SWITCH34_RLC;
+	return ;
+}
+
+/**
+ * @brief 测试用接口
+ * 
+ */
+void self_Calibration_Test(void)
+{
+	for(int i=0;i<NUMS;i++)	
+	{
+		self_calibration.calibration_cos[i] = 1;
+		self_calibration.calibration_sin[i] = 1;
+	}
 	return ;
 }
 /**
@@ -140,15 +155,17 @@ void measure_S21(void)
 	adc1256.channel = COS;
 	start_FSK();			// 开启AD9854自动扫频模式
 	start_Adc_1256();	// 打开ADS1256采样
+	// for(int i=0;i<NUMS;i++)	printf("%d\r\n",adc1256.adc1256_buf_cos[i]);
 
 	// 3.待采信号与sinwt相乘
 	SWITCH1_SIN;	// 切换开关, 乘法器输入为sin
 	adc1256.channel = SIN;
 	start_FSK();			// 开启AD9854自动扫频模式
 	start_Adc_1256();	// 打开ADS1256采样
-
+	// for(int i=0;i<NUMS;i++)	printf("%d\r\n",adc1256.adc1256_buf_sin[i]);
+	
 	// 4.计算通过RLC网络的待测信号的U和φ
-	calculate_Amp_Phase(adc1256, self_calibration);
+	calculate_Amp_Phase();
 
 	return ;
 }
@@ -175,7 +192,7 @@ void measure_S11(void)
 	start_Adc_1256();	// 打开ADS1256采样
 
 	// 4.计算通过RLC网络的待测信号的U和φ
-	calculate_Amp_Phase(adc1256, self_calibration);
+	calculate_Amp_Phase();
 
 	return ;
 }
@@ -186,31 +203,31 @@ void measure_S11(void)
  * @param _result 正交分解的计算结果
  * @retval 中心频点下标, 同时修改了全局变量
  */
-int calculate_CenterFrequency(RESULT _result)
+int calculate_CenterFrequency()
 {
 	// 幅频曲线最高值点即为中心频点
-	double max=_result.amp[0];
+	double max=math_result.amp[0];
 	for(int i=0;i<NUMS;i++)
 	{
-		if(_result.amp[i] >= max){
-			max = _result.amp[i];
-			_result.amp_max_index = i;
+		if(math_result.amp[i] >= max){
+			max = math_result.amp[i];
+			math_result.amp_max_index = i;
 		}
 	}
 
 	// 相频曲线与0差最小的点即为中心频点
-	double diff_min = fabs(_result.phase[0] - 0.00);
+	double diff_min = fabs(math_result.phase[0] - 0.00);
 	for(int i=0;i<NUMS;i++)
 	{
-		if(fabs(_result.phase[i] - 0.00) <= diff_min){
-			diff_min = fabs(_result.phase[i] - 0.00);
-			_result.phase_0_index = i;
+		if(fabs(math_result.phase[i] - 0.00) <= diff_min){
+			diff_min = fabs(math_result.phase[i] - 0.00);
+			math_result.phase_0_index = i;
 		}
 	}
 
-	if (_result.amp_max_index == _result.phase_0_index)	printf("same amp_center vs phase_center\r\n");
-	else printf("differnt amp_center vs phase_center\r\n amp_center:%d\r\n phase_center:%d\r\n",_result.amp_max_index,_result.phase_0_index);
-
-	_result.center_fre_index = _result.amp_max_index;
-	return _result.center_fre_index;
+	// if (_result.amp_max_index == _result.phase_0_index)	printf("same amp_center vs phase_center\r\n\xff\xff\xff");
+	// else printf("differnt amp_center vs phase_center\r\n amp_center:%d\r\n phase_center:%d\r\n\xff\xff\xff",_result.amp_max_index,_result.phase_0_index);
+	if(curved.mode == AMP)	math_result.center_fre_index = math_result.amp_max_index;
+	else	math_result.center_fre_index = math_result.phase_0_index;
+	return math_result.center_fre_index;
 }
