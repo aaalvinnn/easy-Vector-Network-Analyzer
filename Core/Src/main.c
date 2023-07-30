@@ -245,27 +245,33 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         break;
       // 光标功能
       case 0x05:
+        cursor.status = 1 - cursor.status;
         REFRESH_CURSOR;
         HAL_Delay(50);
+        if (!cursor.status) break;    // 光标关闭
         startCursorMode();
         break;
       // 光标向右移动,步距为1
       case 0x06:
+        if (!cursor.status) break;    // 光标关闭
         cursor.step = 1;
         moveCursor_Right();
         break;
       // 光标向左移动,步距为1
       case 0x07:
+        if (!cursor.status) break;    // 光标关闭
         cursor.step = 1;
         moveCursor_Left();
         break;
       // 光标向右移动,步距为10
       case 0x08:
+        if (!cursor.status) break;    // 光标关闭
         cursor.step = 10;
         moveCursor_Right();
         break;
       // 光标向左移动,步距为10
       case 0x09:
+        if (!cursor.status) break;    // 光标关闭
         cursor.step = 10;
         moveCursor_Left();
         break;

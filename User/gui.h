@@ -36,7 +36,8 @@ typedef struct Curved{
 typedef struct Cursor{
     int x;
     int y;
-		uint8_t step;
+	uint8_t step;
+    uint8_t status; // 是否打开或关闭光标
 }CURSOR;
 
 /*-----------DECLARTION-------------*/

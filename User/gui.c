@@ -108,7 +108,7 @@ void printCursorData(int x, int y, uint8_t n)
 
     else
     {
-        printf("t2.txt=\"%d: %.1fMHz  %.2f°\"\xff\xff\xff",n,(float)adc1256.frequency_array[x] / 1000000.0,math_result.phase[x]);
+        printf("t2.txt=\"%d: %.1fMHz  %.2f\"\xff\xff\xff",n,(float)adc1256.frequency_array[x] / 1000000.0,math_result.phase[x]);
     }
     return ;
 }
