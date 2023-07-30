@@ -86,8 +86,8 @@ void printCurve(void)
  */
 void drawCursor(uint16_t x, uint16_t y)
 {
-    // 光标直径：8
-    printf("cir %d,%d,8,BROWN\xff\xff\xff",x+CURVE_WINDOW_X,CURVE_WINDOW_Y-y);
+    // 光标直径：4
+    printf("cir %d,%d,4,BROWN\xff\xff\xff",x+CURVE_WINDOW_X,CURVE_WINDOW_Y-y);
     return ;
 }
 
