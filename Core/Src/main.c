@@ -104,7 +104,9 @@ int main(void)
   // 串口屏初始化
 	guiInit();
   // 采集序列频率数组初始化
-  for(int i=0;i<NUMS;i++) adc1256.frequency_array[i] = 0.5 + i * FRESTEP;
+  for(int i=0;i<NUMS;i++) adc1256.frequency_array[i] = 500000 + i * FRESTEP;
+	//receive from UART HMI
+	HAL_UART_Receive_IT(&huart1, &rx_flag, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -112,7 +114,6 @@ int main(void)
   self_Calibration_Test();  // 测试，将自校正数组全填充为1
   while (1)
   {
-    HAL_UART_Receive_IT(&huart1, &rx_flag, 1);	//receive from UART HMI
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -243,21 +244,36 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     // 光标功能
 		else if (rx_flag == 0x05)
 		{
-      // REFRESH_CURSOR;
+      REFRESH_CURSOR;
+			HAL_Delay(50);
       startCursorMode();
 		}
-    // 光标向右移动
+    // 光标向右移动,步距为1
     else if (rx_flag == 0x06)
     {
+			cursor.step = 1;
       moveCursor_Right();
     }
-    // 光标向左移动
+    // 光标向左移动,步距为1
     else if (rx_flag == 0x07)
     {
+			cursor.step = 1;
       moveCursor_Left();
     }
-    return ;
+		// 光标向右移动,步距为10
+    else if (rx_flag == 0x08)
+    {
+			cursor.step = 10;
+      moveCursor_Right();
+    }
+		// 光标向左移动,步距为10
+    else if (rx_flag == 0x09)
+    {
+			cursor.step = 10;
+      moveCursor_Left();
+    }
 	}
+	HAL_UART_Receive_IT(&huart1, &rx_flag, 1);	//receive from UART HMI
 }
 /* USER CODE END 4 */
 

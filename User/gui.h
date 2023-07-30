@@ -14,7 +14,7 @@
 #include "app.h"
 #include "stdio.h"
 
-#define REFRESH_CURSOR printf("ref s0\xff\xff\xff")    // 去除原有的光标
+#define REFRESH_CURSOR printf("ref s0\xff\xff\xff");	// 去除原有的光标
 #define REFRESH_WINDOW printf("cle s0.id,0\xff\xff\xff")
 // 曲线窗口的属性
 #define CURVE_WINDOW_X  22
@@ -36,10 +36,12 @@ typedef struct Curved{
 typedef struct Cursor{
     int x;
     int y;
+		uint8_t step;
 }CURSOR;
 
 /*-----------DECLARTION-------------*/
 extern CURVED curved;
+extern CURSOR cursor;
 
 void guiInit(void);
 void printCurve(void);

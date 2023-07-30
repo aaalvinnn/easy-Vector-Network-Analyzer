@@ -103,12 +103,12 @@ void printCursorData(int x, int y, uint8_t n)
 {
     if(curved.mode == AMP)
     {
-        printf("t2.txt=\"%d:  %.1fMHz  %.2fdB\"\xff\xff\xff",n,adc1256.frequency_array[x],math_result.amp[x]);
+        printf("t2.txt=\"%d: %.1fMHz  %.2fdB\"\xff\xff\xff",n,(float)adc1256.frequency_array[x] / 1000000.0,math_result.amp[x]);
     }
 
     else
     {
-        printf("t2.txt=\"%d:  %.1fMHz  %.2f°\"\xff\xff\xff",n,adc1256.frequency_array[x],math_result.phase[x]);
+        printf("t2.txt=\"%d: %.1fMHz  %.2f°\"\xff\xff\xff",n,(float)adc1256.frequency_array[x] / 1000000.0,math_result.phase[x]);
     }
     return ;
 }
@@ -147,7 +147,8 @@ void startCursorMode(void)
 void moveCursor_Right(void)
 {
     REFRESH_CURSOR;
-    cursor.x++;
+    HAL_Delay(50);
+    cursor.x += cursor.step;
     switch (curved.mode)
     {
         case AMP:
@@ -159,6 +160,7 @@ void moveCursor_Right(void)
         default:
             break;
     }
+		drawCursor(cursor.x,cursor.y);
     printCursorData(cursor.x,cursor.y,1);
     return ;
 }
@@ -170,7 +172,8 @@ void moveCursor_Right(void)
 void moveCursor_Left(void)
 {
     REFRESH_CURSOR;
-    cursor.x--;
+    HAL_Delay(50);
+    cursor.x -= cursor.step;
     switch (curved.mode)
     {
         case AMP:
@@ -182,6 +185,7 @@ void moveCursor_Left(void)
         default:
             break;
     }
+		drawCursor(cursor.x,cursor.y);
     printCursorData(cursor.x,cursor.y,1);
     return ;
 }

@@ -16,7 +16,7 @@
 #define ADCLENGTH 500 // ADC转换数组大小
 #define NUMS 239			// 幅频/相频相应曲线点数
 #define PI 3.1415926535    // 圆周率
-#define FRESTEP 500        // 扫频步进频率
+#define FRESTEP 500000        // 扫频步进频率
 
 // 单刀双掷射频开关1--cos | sin
 #define SWITCH1_COS             HAL_GPIO_WritePin(switch1_A_GPIO_Port, switch1_A_Pin, 0); \
@@ -53,7 +53,7 @@ typedef struct Adc1256{
     enum Channel channel;
     uint32_t adc1256_buf_cos[NUMS];		// 乘法器经过cos通道扫频采集到的值
     uint32_t adc1256_buf_sin[NUMS];		// 乘法器经过sin通道扫频采集到的值
-    uint32_t frequency_array[NUMS];     // 单位为MHz
+    uint32_t frequency_array[NUMS];     // 单位为Hz
     volatile uint8_t flag;      // 采集状态标志, volatile防止被编译器优化导致卡死在while(!flag)中
 }ADC1256;
 
