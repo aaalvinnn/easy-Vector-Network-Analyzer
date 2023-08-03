@@ -52,19 +52,17 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOG_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, switch3_A_Pin|switch3_B_Pin|switch2_B_Pin|switch2_A_Pin
-                          |A0_Pin|WD_Pin|UCLK_Pin|RD_Pin
-                          |OSK_Pin|D0_Pin|D2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOE, switch3_Pin|A0_Pin|WD_Pin|UCLK_Pin
+                          |RD_Pin|OSK_Pin|D0_Pin|D2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOF, D5_Pin|D6_Pin|A4_Pin|A5_Pin
                           |A2_Pin|RST_Pin|FSK_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, switch1_B_Pin|switch1_A_Pin|ADS1256_SCLK_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, switch2_Pin|switch1_Pin|ADS1256_SCLK_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(ADS1256_MOSI_GPIO_Port, ADS1256_MOSI_Pin, GPIO_PIN_RESET);
@@ -76,15 +74,10 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOD, D4_Pin|D3_Pin|A3_Pin|D1_Pin
                           |A1_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOG, switch4_A_Pin|switch4_B_Pin, GPIO_PIN_RESET);
-
   /*Configure GPIO pins : PEPin PEPin PEPin PEPin
-                           PEPin PEPin PEPin PEPin
-                           PEPin PEPin PEPin */
-  GPIO_InitStruct.Pin = switch3_A_Pin|switch3_B_Pin|switch2_B_Pin|switch2_A_Pin
-                          |A0_Pin|WD_Pin|UCLK_Pin|RD_Pin
-                          |OSK_Pin|D0_Pin|D2_Pin;
+                           PEPin PEPin PEPin PEPin */
+  GPIO_InitStruct.Pin = switch3_Pin|A0_Pin|WD_Pin|UCLK_Pin
+                          |RD_Pin|OSK_Pin|D0_Pin|D2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -100,7 +93,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PCPin PCPin */
-  GPIO_InitStruct.Pin = switch1_B_Pin|switch1_A_Pin;
+  GPIO_InitStruct.Pin = switch2_Pin|switch1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -154,13 +147,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PGPin PGPin */
-  GPIO_InitStruct.Pin = switch4_A_Pin|switch4_B_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
 }
 

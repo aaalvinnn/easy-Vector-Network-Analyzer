@@ -13,34 +13,49 @@
 
 #include "stdio.h"
 #include "main.h"
+
 #define PI 3.1415926535    // 圆周率
 #define ADCLENGTH 500 // ADC转换数组大小
 #define NUMS 450			// 幅频/相频相应曲线点数
-#define FRESTEP 266667        // 扫频步进频率
+#define FRESTEP 100000        // 扫频步进频率
+#define NOMINALCOUPLING 3.2734  // 耦合度（转换成了V单位,见对应定向耦合器的数据手册）
+#define DRIFT 53511   // 乘法器的直流偏置 32mv，最后减掉 53511 = 0.032 / 0.000000598
 
-// 单刀双掷射频开关1--cos | sin
-#define SWITCH1_COS             HAL_GPIO_WritePin(switch1_A_GPIO_Port, switch1_A_Pin, 0); \
-                                HAL_GPIO_WritePin(switch1_B_GPIO_Port, switch1_B_Pin, 1)
+// 待测电路与自校正电路的转换，由一对两个射频开关完成
+// 开关1
+#define SWITCH1_0                  HAL_GPIO_WritePin(switch1_GPIO_Port, switch1_Pin, 0)
+#define SWITCH1_1                  HAL_GPIO_WritePin(switch1_GPIO_Port, switch1_Pin, 1)
+// 开关2
+#define SWITCH2_0                  HAL_GPIO_WritePin(switch2_GPIO_Port, switch2_Pin, 0)
+#define SWITCH2_1                  HAL_GPIO_WritePin(switch2_GPIO_Port, switch2_Pin, 1)
 
-#define SWITCH1_SIN             HAL_GPIO_WritePin(switch1_A_GPIO_Port, switch1_A_Pin, 1); \
-                                HAL_GPIO_WritePin(switch1_B_GPIO_Port, switch1_B_Pin, 0)
+// 开关3，控制正交分解时的输入cos/sin，分时复用一个乘法器，一个ads1256
+#define SWITCH3_0                  HAL_GPIO_WritePin(switch3_GPIO_Port, switch3_Pin, 0)     // 输入cos
+#define SWITCH3_1                  HAL_GPIO_WritePin(switch3_GPIO_Port, switch3_Pin, 1)     // 输入sin
 
-// 单刀双掷射频开关2--正向 | 反向
-#define SWITCH2_S21             HAL_GPIO_WritePin(switch2_A_GPIO_Port, switch2_A_Pin, 0); \
-                                HAL_GPIO_WritePin(switch2_B_GPIO_Port, switch2_B_Pin, 1)
+// // 单刀双掷射频开关1--cos | sin
+// #define SWITCH1_COS             HAL_GPIO_WritePin(switch1_A_GPIO_Port, switch1_A_Pin, 0); \
+//                                 HAL_GPIO_WritePin(switch1_B_GPIO_Port, switch1_B_Pin, 1)
 
-#define SWITCH2_S11             HAL_GPIO_WritePin(switch2_A_GPIO_Port, switch2_A_Pin, 1); \
-                                HAL_GPIO_WritePin(switch2_B_GPIO_Port, switch2_B_Pin, 0)
-// 单刀双掷射频开关3&4--待测RLC网络 | 自校正电路
-#define SWITCH34_RLC            HAL_GPIO_WritePin(switch3_A_GPIO_Port, switch3_A_Pin, 1); \
-                                HAL_GPIO_WritePin(switch3_B_GPIO_Port, switch3_B_Pin, 0); \
-                                HAL_GPIO_WritePin(switch4_A_GPIO_Port, switch4_A_Pin, 1); \
-                                HAL_GPIO_WritePin(switch4_B_GPIO_Port, switch4_B_Pin, 0)
+// #define SWITCH1_SIN             HAL_GPIO_WritePin(switch1_A_GPIO_Port, switch1_A_Pin, 1); \
+//                                 HAL_GPIO_WritePin(switch1_B_GPIO_Port, switch1_B_Pin, 0)
 
-#define SWITCH34_CALIBRATION    HAL_GPIO_WritePin(switch3_A_GPIO_Port, switch3_A_Pin, 0); \
-                                HAL_GPIO_WritePin(switch3_B_GPIO_Port, switch3_B_Pin, 1); \
-                                HAL_GPIO_WritePin(switch4_A_GPIO_Port, switch4_A_Pin, 0); \
-                                HAL_GPIO_WritePin(switch4_B_GPIO_Port, switch4_B_Pin, 1)
+// // 单刀双掷射频开关2--正向 | 反向
+// #define SWITCH2_S21             HAL_GPIO_WritePin(switch2_A_GPIO_Port, switch2_A_Pin, 0); \
+//                                 HAL_GPIO_WritePin(switch2_B_GPIO_Port, switch2_B_Pin, 1)
+
+// #define SWITCH2_S11             HAL_GPIO_WritePin(switch2_A_GPIO_Port, switch2_A_Pin, 1); \
+//                                 HAL_GPIO_WritePin(switch2_B_GPIO_Port, switch2_B_Pin, 0)
+// // 单刀双掷射频开关3&4--待测RLC网络 | 自校正电路
+// #define SWITCH34_RLC            HAL_GPIO_WritePin(switch3_A_GPIO_Port, switch3_A_Pin, 1); \
+//                                 HAL_GPIO_WritePin(switch3_B_GPIO_Port, switch3_B_Pin, 0); \
+//                                 HAL_GPIO_WritePin(switch4_A_GPIO_Port, switch4_A_Pin, 1); \
+//                                 HAL_GPIO_WritePin(switch4_B_GPIO_Port, switch4_B_Pin, 0)
+
+// #define SWITCH34_CALIBRATION    HAL_GPIO_WritePin(switch3_A_GPIO_Port, switch3_A_Pin, 0); \
+//                                 HAL_GPIO_WritePin(switch3_B_GPIO_Port, switch3_B_Pin, 1); \
+//                                 HAL_GPIO_WritePin(switch4_A_GPIO_Port, switch4_A_Pin, 0); \
+//                                 HAL_GPIO_WritePin(switch4_B_GPIO_Port, switch4_B_Pin, 1)
 
 // 正交分解时的乘数
 enum Channel{

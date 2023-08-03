@@ -31,6 +31,7 @@
 #include "AD9854.h"
 #include "gui.h"
 #include "stdio.h"
+#include "ad8302.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,6 +54,8 @@
 /* USER CODE BEGIN PV */
 extern volatile uint8_t ads1256_flag;
 uint8_t rx_flag;		// receive from UART MENU
+uint16_t ad8302_buf[10];
+uint16_t mean;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -101,22 +104,35 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-	AD9854_InitSingle();	      	  					//AD9854点频模式初始化
-	AD9854_SetSine(1000000,4095);
+	// AD9854_InitSingle();	      	  					//AD9854点频模式初始化
+	// AD9854_SetSine(12000000,4095);
   // 串口屏初始化
-	guiInit();
+	// guiInit();
   // 采集序列频率数组初始化
-  for(int i=0;i<NUMS;i++) adc1256.frequency_array[i] = 500000 + i * FRESTEP;
+  // for(int i=0;i<NUMS;i++) adc1256.frequency_array[i] = 5000000 + i * FRESTEP;
+
   // 测试，将自校正数组全填充为1
-  self_Calibration_Test();
+  // self_Calibration_Test();
 	//receive from UART HMI
 	HAL_UART_Receive_IT(&huart1, &rx_flag, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+	// start_Adc_1256();	// 打开ADS1256采样
+	// for(int i=0;i<NUMS;i++)	printf("%d\r\n",adc1256.adc1256_buf_cos[i]);
+	// changeAdcChannel(&hadc2, ADC_CHANNEL_1);
+	// startAdc(ad8302_buf, &hadc2);
+	// mean = ad8302_mean(ad8302_buf);
+	// printf("增益: %.4f\r\n",ad8302_getAmp(mean));
+	// printf("增益v: %.4f\r\n",(double)mean / 4095 * 3.3000);
+	// changeAdcChannel(&hadc2, ADC_CHANNEL_5);
+	startAdc(ad8302_buf, &hadc2);
+	mean = ad8302_mean(ad8302_buf);
+	printf("相位差: %.4f\r\n",ad8302_getPhase(mean));
+	printf("相位差v: %.4f\r\n",(double)mean / 4095 * 3.3000);
   while (1)
-  {
+  {   
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -198,8 +214,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	{
 		static int i = 0;
     // 分时复用ads1256的同一个通道
-		if(adc1256.channel == COS)  adc1256.adc1256_buf_cos[i] = ADS1256ReadData(ADS1256_MUXP_AIN0, ADS1256_MUXN_AINCOM);
-    else if(adc1256.channel == SIN)  adc1256.adc1256_buf_sin[i] = ADS1256ReadData(ADS1256_MUXP_AIN0, ADS1256_MUXN_AINCOM);
+		if(adc1256.channel == COS)  adc1256.adc1256_buf_cos[i] = ADS1256ReadData(ADS1256_MUXP_AIN2, ADS1256_MUXN_AINCOM);
+    else if(adc1256.channel == SIN)  adc1256.adc1256_buf_sin[i] = ADS1256ReadData(ADS1256_MUXP_AIN2, ADS1256_MUXN_AINCOM);
 		i++;
 		if(i==(NUMS))
 		{
@@ -222,19 +238,19 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	{
     switch (rx_flag)
     {
-      // 测量S11参数
+      // 测量S21参数
       case 0x01:
         REFRESH_CURSOR;
         REFRESH_WINDOW;
         measure_S21();
         printCurve();
         break;
-      // 测量S21参数
+      // 测量S11参数
       case 0x02:
-        REFRESH_CURSOR;
-        REFRESH_WINDOW;
-        measure_S11();
-        printCurve();
+        // REFRESH_CURSOR;
+        // REFRESH_WINDOW;
+        // measure_S11();
+        // printCurve();
         break;
       // 幅/相频曲线显示切换
       case 0x03:

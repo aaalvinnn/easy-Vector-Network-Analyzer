@@ -22,6 +22,16 @@ double ad8302_getAmp(uint16_t adc_result)
 {
     double delta = 30.000 * 4095.000 / 3300.000;// 每30mv对应1db，片内精度为12位
     double db = ((float)adc_result / delta -30);
-		double power = pow(10, db / 10);
-	  return sqrt(power);
+		double power = pow(10, db / 20);
+	  return power;
+}
+
+int ad8302_mean(uint16_t *adc_result)
+{
+	int mean=0;
+	for (int i=0;i<10;i++)
+	{
+		mean += adc_result[i];
+	}
+	return mean/10;
 }

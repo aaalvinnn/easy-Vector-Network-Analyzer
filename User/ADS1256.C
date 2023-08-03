@@ -9,6 +9,11 @@ void _delay_us(uint32_t time)
 void ADS1256_Delay(void)
 {
 	for(int i=0;i<15;i++);
+	// uint32_t delay = (HAL_RCC_GetHCLKFreq() / 4000000 * 1);		// ÕâÀïus = 1
+  //   while (delay--)
+	// {
+	// 	;
+	// }
 }
 
 //-----------------------------------------------------------------//

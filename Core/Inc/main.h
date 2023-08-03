@@ -57,14 +57,8 @@ void user_Adc_Dma_TxCpltCallback(DMA_HandleTypeDef *hdma);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define switch3_A_Pin GPIO_PIN_2
-#define switch3_A_GPIO_Port GPIOE
-#define switch3_B_Pin GPIO_PIN_3
-#define switch3_B_GPIO_Port GPIOE
-#define switch2_B_Pin GPIO_PIN_5
-#define switch2_B_GPIO_Port GPIOE
-#define switch2_A_Pin GPIO_PIN_6
-#define switch2_A_GPIO_Port GPIOE
+#define switch3_Pin GPIO_PIN_6
+#define switch3_GPIO_Port GPIOE
 #define D5_Pin GPIO_PIN_0
 #define D5_GPIO_Port GPIOF
 #define D6_Pin GPIO_PIN_1
@@ -75,10 +69,10 @@ void user_Adc_Dma_TxCpltCallback(DMA_HandleTypeDef *hdma);
 #define A5_GPIO_Port GPIOF
 #define A2_Pin GPIO_PIN_4
 #define A2_GPIO_Port GPIOF
-#define switch1_B_Pin GPIO_PIN_0
-#define switch1_B_GPIO_Port GPIOC
-#define switch1_A_Pin GPIO_PIN_1
-#define switch1_A_GPIO_Port GPIOC
+#define switch2_Pin GPIO_PIN_0
+#define switch2_GPIO_Port GPIOC
+#define switch1_Pin GPIO_PIN_1
+#define switch1_GPIO_Port GPIOC
 #define ADS1256_SCLK_Pin GPIO_PIN_3
 #define ADS1256_SCLK_GPIO_Port GPIOC
 #define ADS1256_MOSI_Pin GPIO_PIN_7
@@ -121,10 +115,6 @@ void user_Adc_Dma_TxCpltCallback(DMA_HandleTypeDef *hdma);
 #define D1_GPIO_Port GPIOD
 #define A1_Pin GPIO_PIN_15
 #define A1_GPIO_Port GPIOD
-#define switch4_A_Pin GPIO_PIN_11
-#define switch4_A_GPIO_Port GPIOG
-#define switch4_B_Pin GPIO_PIN_12
-#define switch4_B_GPIO_Port GPIOG
 
 /* USER CODE BEGIN Private defines */
 

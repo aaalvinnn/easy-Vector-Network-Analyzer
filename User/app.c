@@ -78,9 +78,27 @@ void start_FSK(void)
 {
 	AD9854_FSK_BPSK_HOLD_1;		// FSK = 1: 从低频向高频扫频; FSK = 0: 从高频向低频扫频
 	AD9854_InitRFSK(MANUAL);									//AUTO,自动扫频，无需外加控制脚控制；MANUAL,手动扫频，由AD9854_FSK_BPSK_HOLD引脚控制扫频
-	AD9854_SetRFSK(500000,500000+FRESTEP*NUMS,FRESTEP,299999);	//扫频下限0.5Mhz，上限120Mhz，步进500Khz，频点间隔1ms （与ads1256采样率相对应），一共扫(120-0.5) / 0.5 = 239 个点
+	AD9854_SetRFSK(5000000,5000000+FRESTEP*NUMS,FRESTEP,299999);	//扫频下限5Mhz，上限50Mhz，步进100Khz，频点间隔1ms （与ads1256采样率相对应），一共扫(50-5) / 0.1 = 450 个点
 }
 
+/**
+ * @brief 切换待测电路/自校正电路 n=0:自校正；n=1：待测电路
+ * 
+ * @param int n
+ */
+void change_Circle(int n)
+{
+	if(n)
+	{
+		SWITCH1_0;
+		SWITCH2_1;
+	}
+	else{
+		SWITCH1_1;
+		SWITCH2_0;
+	}
+	return ;
+}
 /*---------------------- FUNCTION ---------------------------*/
 /**
  * @brief 正交分解算法计算待测信号的amp和phase
@@ -91,6 +109,11 @@ void calculate_Amp_Phase()
 {
 	for(int i=0;i<NUMS;i++)
 	{
+		// 减掉乘法器自带的直流偏置，防止对下面的计算造成影响
+		adc1256.adc1256_buf_cos[i] -= DRIFT;
+		adc1256.adc1256_buf_sin[i] -= DRIFT;
+		self_calibration.calibration_cos[i] -= DRIFT;
+		self_calibration.calibration_sin[i] -= DRIFT;
 		// 相频响应
 		math_result.phase[i] = atan2(adc1256.adc1256_buf_sin[i] / self_calibration.calibration_sin[i],adc1256.adc1256_buf_cos[i] / self_calibration.calibration_cos[i]);
 		math_result.phase[i] = math_result.phase[i] / PI * 180.00;	// 切换为角度单位
@@ -110,21 +133,21 @@ void calculate_Amp_Phase()
 void self_Calibration(void)
 {
 	// 1.射频开关切换为测量自校正电路
-	SWITCH34_CALIBRATION;
+	change_Circle(0);
 	// 2.采集cos校正系数
-	SWITCH1_COS;	// 切换开关, 乘法器输入为cos
+	SWITCH3_0;	// 切换开关, 乘法器输入为cos
 	adc1256.channel = COS;
 	start_FSK();			// 开启AD9854自动扫频模式
 	start_Adc_1256();	// 打开ADS1256采样
 	// for(int i=0;i<NUMS;i++)	self_calibration.calibration_cos[i] = adc1256.adc1256_buf_cos[i];	// 将采集结果储存到自校正系数数组中
 	// 3.采集sin校正系数
-	SWITCH1_SIN;	// 切换开关, 乘法器输入为sin
+	SWITCH3_0;	// 切换开关, 乘法器输入为cos---------- 自校正时由于自校正电路没有相移，故正交分解的两次输出都为cos同相信号
 	adc1256.channel = SIN;
 	start_FSK();			// 开启AD9854自动扫频模式
 	start_Adc_1256();	// 打开ADS1256采样
 	// for(int i=0;i<NUMS;i++)	self_calibration.calibration_sin[i] = adc1256.adc1256_buf_sin[i];	// 将采集结果储存到自校正系数数组中
 	// 4.射频开关切换回测量RLC待测网络
-	SWITCH34_RLC;
+	change_Circle(1);
 	return ;
 }
 
@@ -142,23 +165,23 @@ void self_Calibration_Test(void)
 	return ;
 }
 /**
- * @brief 测量S21参数，正交扫频算法，只采经过乘法器、低通滤波器后的直流量
+ * @brief 测量S21参数(正向增益、相频响应9+-)，正交扫频算法，只采经过乘法器、低通滤波器后的直流量
  * @param void
  * @retval void
  */
 void measure_S21(void)
 {
 	// 1.射频开关切换为S21待测信号
-	SWITCH2_S21;
+	change_Circle(1);
 	// 2.待采信号与coswt相乘
-	SWITCH1_COS;	// 切换开关, 乘法器输入为cos
+	SWITCH3_0;	// 切换开关, 乘法器输入为cos
 	adc1256.channel = COS;
 	start_FSK();			// 开启AD9854自动扫频模式
 	start_Adc_1256();	// 打开ADS1256采样
 	// for(int i=0;i<NUMS;i++)	printf("%d\r\n",adc1256.adc1256_buf_cos[i]);
 
 	// 3.待采信号与sinwt相乘
-	SWITCH1_SIN;	// 切换开关, 乘法器输入为sin
+	SWITCH3_1;	// 切换开关, 乘法器输入为sin
 	adc1256.channel = SIN;
 	start_FSK();			// 开启AD9854自动扫频模式
 	start_Adc_1256();	// 打开ADS1256采样
@@ -170,32 +193,6 @@ void measure_S21(void)
 	return ;
 }
 
-/**
- * @brief 测量S11参数，正交扫频算法
- * @param void
- * @retval void
- */
-void measure_S11(void)
-{
-	// 1.射频开关切换为S11待测信号
-	SWITCH2_S11;
-	// 2.待采信号与coswt相乘
-	SWITCH1_COS;	// 切换开关, 乘法器输入为cos
-	adc1256.channel = COS;
-	start_FSK();			// 开启AD9854自动扫频模式
-	start_Adc_1256();	// 打开ADS1256采样
-
-	// 3.待采信号与sinwt相乘
-	SWITCH1_SIN;	// 切换开关, 乘法器输入为sin
-	adc1256.channel = SIN;
-	start_FSK();			// 开启AD9854自动扫频模式
-	start_Adc_1256();	// 打开ADS1256采样
-
-	// 4.计算通过RLC网络的待测信号的U和φ
-	calculate_Amp_Phase();
-
-	return ;
-}
 
 /**
  * @brief 计算中心频点
